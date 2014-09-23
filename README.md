@@ -54,7 +54,7 @@ Start by grabbing a new discovery token:
 curl -w "\n" https://discovery.etcd.io/new
 ```
 
-And edit the `nodes/etcd.yml` to replace the <token> with it.
+And edit the `nodes/etcd.yml` to replace the `<token>` with it.
 
 Our deployment process will use two [cloud config](https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/) scripts located in `nodes/` and very similar to the EC2 [scripts](https://coreos.com/docs/running-coreos/cloud-providers/ec2/). This is not suprising as exoscale aims to mimic EC2 and supports [userdata](https://community.exoscale.ch/compute/tutorials/automation/bootstrap-your-instances-with-cloudinit-and-user-data/).
 
@@ -91,7 +91,7 @@ MACHINE		IP		METADATA
 
 ## Creating the Kubernetes cluster
 
-Take one of the IP addresses of your etcd cluster nodes and edit the `nodes/knode.yml` file to replace <ip> with it.
+Take one of the IP addresses of your etcd cluster nodes and edit the `nodes/knode.yml` file to replace `<ip>` with it.
 
 Execute the deployment script to start 5 kubernetes nodes:
 
