@@ -18,7 +18,7 @@ def getimage(id):
 def getsize(id):
     return [i for i in conn.list_sizes() if i.id == id][0]
 
-#This is a coreos template with a 10B disk
+#This is a coreos template with a 10GB disk
 image=getimage('d2857804-034c-4973-8944-fb1639eafca5')
 #This is a micro instance
 size=getsize('71004023-bb72-4a97-b1e9-bc66dfce9470')

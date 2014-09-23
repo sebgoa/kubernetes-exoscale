@@ -18,7 +18,7 @@ def getimage(id):
 def getsize(id):
     return [i for i in conn.list_sizes() if i.id == id][0]
 
-#This is a coreos template with a 10B disk
+#This is a coreos template with a 10GB disk
 image=getimage('d2857804-034c-4973-8944-fb1639eafca5')
 #This is a small instance
 size=getsize('21624abb-764e-4def-81d7-9fc54b5957fb')
@@ -26,7 +26,7 @@ size=getsize('21624abb-764e-4def-81d7-9fc54b5957fb')
 #Reads cloud config file
 userdata = "\n".join(open('./nodes/knode.yml').readlines())
 
-# Replace the name of the key with what you created and make sure you created an etcd security group
+# Replace the name of the key with what you created and make sure you created a kubernetes security group
 name = 'kube'
 for i in range(5):
     name = name + '-' + str(i)
