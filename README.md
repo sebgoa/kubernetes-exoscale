@@ -35,7 +35,11 @@ Follow the [guide](https://community.exoscale.ch/compute/tutorials/firewall/intr
 
 Etcd security group:
 
+![Etcd security group](images/etcd.png)
+
 Kubernetes security group:
+
+![Kubernetes security group](images/kubernetes.png)
 
 [Create](https://community.exoscale.ch/compute/tutorials/getting-started/ssh-keypairs/) a keypair and save the private key locally.
 
@@ -108,7 +112,14 @@ MACHINE		IP		METADATA
 6ce6b544...	185.19.28.211	role=kubernetes
 d9803976...	185.19.28.201	role=kubernetes
 db72da3e...	185.19.28.229	role=kubernetes
-
 ```
+
+At this stage, there might be an issue with FLEETCTL_ENDPOINT not being set on the kubernetes nodes. This prevents you from running `fleetctl` on those nodes.
+This is under investigation.
+
+## Launching the Kubernetes services
+
+All the systemd services needed to run Kubernetes are located in the `./units` directory.
+
 
 
