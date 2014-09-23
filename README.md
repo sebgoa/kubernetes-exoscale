@@ -29,7 +29,7 @@ This tutorial is composed of four steps:
 
 ## Creating the security groups and a key pair on exoscale
 
-We will launch one ETCD cluster (three nodes) and one KUBERNETES cluster (three nodes). Each cluster will be in its own security group: etcd and kubernetes.
+We will launch one ETCD cluster (three nodes) and one KUBERNETES cluster (five nodes). Each cluster will be in its own security group: etcd and kubernetes.
 
 Follow the [guide](https://community.exoscale.ch/compute/tutorials/firewall/introduction-to-security-groups/) and create the two security groups. They should have the following rules
 
@@ -119,7 +119,77 @@ This is under investigation.
 
 ## Launching the Kubernetes services
 
-All the systemd services needed to run Kubernetes are located in the `./units` directory.
+All the systemd services needed to run Kubernetes are located in the `./units` directory. To get the service units on one of the Kubernetes nodes, ssh into one of them and clone this very repo:
+
+```
+$ git clone git clone https://github.com/runseb/kubernetes-exoscale.git
+$ cd kubernetes-exoscale/units
+$ find .
+.
+./kube-apiserver.service
+./kube-controller-manager.service
+./kube-kubelet.service
+./kube-proxy.service
+./kube-register.service
+./kube-scheduler.service
+```
+
+In all those services file, replace the `<ip>` with the IP of one of the ETCD nodes and launch them with `fleetctl`:
+
+```
+fleetctl start kube-proxy.service
+fleetctl start kube-kubelet.service
+fleetctl start kube-apiserver.service
+fleetctl start kube-scheduler.service
+fleetctl start kube-controller-manager.service
+fleetctl start kube-register.service
+```
+
+Fleet will schedule these services on the kubernetes cluster, you can check their status with:
+
+```
+$ fleetctl list-units
+UNIT				MACHINE				ACTIVE	SUB
+kube-apiserver.service		4bb9585f.../185.19.28.116	active	running
+kube-controller-manager.service	4bb9585f.../185.19.28.116	active	running
+kube-kubelet.service		4bb9585f.../185.19.28.116	active	running
+kube-kubelet.service		69ba534d.../185.19.28.72	active	running
+kube-kubelet.service		bd4d5063.../185.19.28.122	active	running
+kube-kubelet.service		df4e3be0.../185.19.28.79	active	running
+kube-kubelet.service		ea47503d.../185.19.28.93	active	running
+kube-proxy.service		4bb9585f.../185.19.28.116	active	running
+kube-proxy.service		69ba534d.../185.19.28.72	active	running
+kube-proxy.service		bd4d5063.../185.19.28.122	active	running
+kube-proxy.service		df4e3be0.../185.19.28.79	active	running
+kube-proxy.service		ea47503d.../185.19.28.93	active	running
+kube-register.service		4bb9585f.../185.19.28.116	active	running
+kube-scheduler.service		4bb9585f.../185.19.28.116	active	running
+```
+
+Grab the IP address of the kubernetes api server and set it as the KUBERNETES_MASTER environment variable:
+
+```
+export KUBERNETES_MASTER="http://185.19.28.116:8080"
+```
+
+Grab `kubecfg` from the kubernetes Google storage, and you are set:
+
+```
+$ wget http://storage.googleapis.com/kubernetes/kubecfg
+$ chmod +x ./kubecfg
+$ ./kubecfg list /minions
+Minion identifier
+----------
+185.19.28.116
+185.19.28.122
+185.19.28.72
+185.19.28.79
+185.19.28.93
+```
+
+You now have a functioning Kubernetes cluster running on a [CloudStack](http://cloudstack.apache.org) cloud, thanks to [exoscale](http://exoscale.ch).
+On the Kubernetes website you can go through some of the [examples](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/examples/guestbook/README.md)
+
 
 
 
