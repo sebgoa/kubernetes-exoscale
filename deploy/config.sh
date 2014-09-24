@@ -6,7 +6,7 @@ ETCD_IP=`fleetctl list-machines | grep etcd | awk {'print $2'} | tail -n 1`
 
 for f in `ls`;
 do
-sed -i 's/<ip>/$ETCD_IP/g' $f
+echo $ETCD_IP | sed -i "s/<ip>/$ETCD_IP/g" $f
 fleetctl start $f
 done
 
