@@ -115,7 +115,11 @@ db72da3e...	185.19.28.229	role=kubernetes
 ```
 
 At this stage, there might be an issue with FLEETCTL_ENDPOINT not being set on the kubernetes nodes. This prevents you from running `fleetctl` on those nodes.
-This is under investigation.
+This is under investigation. To solve this temporarily, ssh into one of your `kubernetes` node and do:
+
+```
+export FLEETCTL_ENDPOINT=http://<ip_of_one_etcd_node>:4001
+```
 
 ## Launching the Kubernetes services
 

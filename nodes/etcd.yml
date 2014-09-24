@@ -4,7 +4,7 @@ coreos:
   fleet:
     metadata: role=etcd
   etcd:
-    discovery: https://discovery.etcd.io/<token>
+    discovery: https://discovery.etcd.io/6729068bb6832318ac645b501c8e04b2
     addr: $public_ipv4:4001
     peer-addr: $public_ipv4:7001
     snapshot: true
