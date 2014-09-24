@@ -122,7 +122,7 @@ This is under investigation.
 All the systemd services needed to run Kubernetes are located in the `./units` directory. To get the service units on one of the Kubernetes nodes, ssh into one of them and clone this very repo:
 
 ```
-$ git clone git clone https://github.com/runseb/kubernetes-exoscale.git
+$ git clone https://github.com/runseb/kubernetes-exoscale.git
 $ cd kubernetes-exoscale/units
 $ find .
 .
