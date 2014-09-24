@@ -194,6 +194,21 @@ Minion identifier
 You now have a functioning Kubernetes cluster running on a [CloudStack](http://cloudstack.apache.org) cloud, thanks to [exoscale](http://exoscale.ch).
 On the Kubernetes website you can go through some of the [examples](https://github.com/GoogleCloudPlatform/kubernetes/blob/master/examples/guestbook/README.md)
 
+# Using Kubernetes
 
+Start a replicated Nginx pod:
 
+```
+$  ./kubecfg -p 8080:80 run dockerfile/nginx 3 myNginx
+```
 
+If all goes well you will get running pods, currently there is an issue with the minion overlay which prevents the pods from communicating.
+
+```
+./kubecfg list /pods
+ID                                     Image(s)            Host                Labels                          Status
+----------                             ----------          ----------          ----------                      ----------
+293b0ce6-441e-11e4-a48d-061fc40000c9   dockerfile/nginx    185.19.28.211/      replicationController=myNginx   Waiting
+293b4ea5-441e-11e4-a48d-061fc40000c9   dockerfile/nginx    185.19.28.230/      replicationController=myNginx   Waiting
+293b5e30-441e-11e4-a48d-061fc40000c9   dockerfile/nginx    185.19.28.229/      replicationController=myNginx   Waiting
+```
