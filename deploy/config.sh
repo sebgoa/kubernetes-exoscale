@@ -19,3 +19,5 @@ chmod +x ../kubecfg
 export KUBERNETES_MASTER=http://${IP[1]}:8080
 
 ../kubecfg list /minions
+
+echo "Don't forget to set KUBERNETES_MASTER to ${IP[1]}"

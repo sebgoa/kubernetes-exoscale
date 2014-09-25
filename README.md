@@ -121,12 +121,72 @@ This is under investigation. To solve this temporarily, ssh into one of your `ku
 export FLEETCTL_ENDPOINT=http://<ip_of_one_etcd_node>:4001
 ```
 
+### Sanity check
+
+[Flannel](https://github.com/coreos/flannel) formerly known as Rudder, is used to create a networking overlay between all Kubernetes pods.
+In the `nodes/knode.yml` file you will notice:
+
+```
+ExecStartPre=-/usr/bin/etcdctl --peers 185.19.28.207:4001 mk /coreos.com/network/config '{"Network":"10.0.0.0/16"}
+``` 
+
+This lines store a specific key `/coreos.com/networking/config` in your etcd cluster and puts in the value `{"Network":"10.0.0.0/16"}`. When Kubernetes nodes start they will lease a /24 subnet from this network and create a UDP based overlay between all nodes. The network interfaces will look something like this:
+
+```
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 10.0.2.1  netmask 255.255.255.0  broadcast 0.0.0.0
+        ether 56:84:7a:fe:97:99  txqueuelen 0  (Ethernet)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 185.19.28.229  netmask 255.255.252.0  broadcast 185.19.31.255
+        inet6 fe80::4fa:dcff:fe00:122  prefixlen 64  scopeid 0x20<link>
+        ether 06:fa:dc:00:01:22  txqueuelen 1000  (Ethernet)
+        RX packets 24737  bytes 30864276 (29.4 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 15098  bytes 1497685 (1.4 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+flannel0: flags=81<UP,POINTOPOINT,RUNNING>  mtu 1472
+        inet 10.0.2.0  netmask 255.255.0.0  destination 10.0.2.0
+        unspec 00-00-00-00-00-00-00-00-00-00-00-00-00-00-00-00  txqueuelen 500  (UNSPEC)
+        RX packets 8  bytes 448 (448.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 8  bytes 2696 (2.6 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 0  (Local Loopback)
+        RX packets 80  bytes 8208 (8.0 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 80  bytes 8208 (8.0 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+
+Check that docker is running properly:
+
+```
+ sudo docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+```
+
 ## Launching the Kubernetes services
 
 All the systemd services needed to run Kubernetes are located in the `./units` directory. To get the service units on one of the Kubernetes nodes, ssh into one of them and clone this very repo:
 
 ```
 $ git clone https://github.com/runseb/kubernetes-exoscale.git
+```
+
+A convenience configuration script is provided `./kubernetes-exoscale/deploy/config.sh` to set the proper IP addresses in the services script and launch them with fleet:
+
+```
+$ chmod +x ./kubernetes-exoscale/deploy/config.sh
 $ cd kubernetes-exoscale/units
 $ find .
 .
@@ -136,17 +196,7 @@ $ find .
 ./kube-proxy.service
 ./kube-register.service
 ./kube-scheduler.service
-```
-
-In all those services file, replace the `<ip>` with the IP of one of the ETCD nodes and launch them with `fleetctl`:
-
-```
-fleetctl start kube-proxy.service
-fleetctl start kube-kubelet.service
-fleetctl start kube-apiserver.service
-fleetctl start kube-scheduler.service
-fleetctl start kube-controller-manager.service
-fleetctl start kube-register.service
+$ ../deploy/config.sh
 ```
 
 Fleet will schedule these services on the kubernetes cluster, you can check their status with:
@@ -154,41 +204,40 @@ Fleet will schedule these services on the kubernetes cluster, you can check thei
 ```
 $ fleetctl list-units
 UNIT				MACHINE				ACTIVE	SUB
-kube-apiserver.service		4bb9585f.../185.19.28.116	active	running
-kube-controller-manager.service	4bb9585f.../185.19.28.116	active	running
-kube-kubelet.service		4bb9585f.../185.19.28.116	active	running
-kube-kubelet.service		69ba534d.../185.19.28.72	active	running
-kube-kubelet.service		bd4d5063.../185.19.28.122	active	running
-kube-kubelet.service		df4e3be0.../185.19.28.79	active	running
-kube-kubelet.service		ea47503d.../185.19.28.93	active	running
-kube-proxy.service		4bb9585f.../185.19.28.116	active	running
-kube-proxy.service		69ba534d.../185.19.28.72	active	running
-kube-proxy.service		bd4d5063.../185.19.28.122	active	running
-kube-proxy.service		df4e3be0.../185.19.28.79	active	running
-kube-proxy.service		ea47503d.../185.19.28.93	active	running
-kube-register.service		4bb9585f.../185.19.28.116	active	running
-kube-scheduler.service		4bb9585f.../185.19.28.116	active	running
+kube-apiserver.service		f5b2d85b.../185.19.28.211	active	running
+kube-controller-manager.service	f5b2d85b.../185.19.28.211	active	running
+kube-kubelet.service		36737e5b.../185.19.28.224	active	running
+kube-kubelet.service		40a99d3b.../185.19.28.229	active	running
+kube-kubelet.service		426d23b5.../185.19.28.244	active	running
+kube-kubelet.service		5e2e8087.../185.19.28.230	active	running
+kube-kubelet.service		f5b2d85b.../185.19.28.211	active	running
+kube-proxy.service		36737e5b.../185.19.28.224	active	running
+kube-proxy.service		40a99d3b.../185.19.28.229	active	running
+kube-proxy.service		426d23b5.../185.19.28.244	active	running
+kube-proxy.service		5e2e8087.../185.19.28.230	active	running
+kube-proxy.service		f5b2d85b.../185.19.28.211	active	running
+kube-register.service		f5b2d85b.../185.19.28.211	active	running
+kube-scheduler.service		f5b2d85b.../185.19.28.211	active	running
 ```
 
 Grab the IP address of the kubernetes api server and set it as the KUBERNETES_MASTER environment variable:
 
 ```
-export KUBERNETES_MASTER="http://185.19.28.116:8080"
+export KUBERNETES_MASTER=http://185.19.28.116:8080
 ```
 
-Grab `kubecfg` from the kubernetes Google storage, and you are set:
+The convenience script downloaded `kubecfg` from Google storage, set it to executable. Use it to list your minions:
 
 ```
-$ wget http://storage.googleapis.com/kubernetes/kubecfg
-$ chmod +x ./kubecfg
+$ cd ../
 $ ./kubecfg list /minions
 Minion identifier
 ----------
-185.19.28.116
-185.19.28.122
-185.19.28.72
-185.19.28.79
-185.19.28.93
+185.19.28.211
+185.19.28.224
+185.19.28.229
+185.19.28.230
+185.19.28.244
 ```
 
 You now have a functioning Kubernetes cluster running on a [CloudStack](http://cloudstack.apache.org) cloud, thanks to [exoscale](http://exoscale.ch).
@@ -199,7 +248,7 @@ On the Kubernetes website you can go through some of the [examples](https://gith
 Start a replicated Nginx pod:
 
 ```
-$  ./kubecfg -p 8080:80 run dockerfile/nginx 3 myNginx
+$  ./kubecfg -p 8088:80 run dockerfile/nginx 3 myNginx
 ```
 
 If all goes well you will get running pods, currently there is an issue with the minion overlay which prevents the pods from communicating.
