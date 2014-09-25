@@ -171,7 +171,7 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 Check that docker is running properly:
 
 ```
- sudo docker images
+$ sudo docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
 ```
 
@@ -204,20 +204,20 @@ Fleet will schedule these services on the kubernetes cluster, you can check thei
 ```
 $ fleetctl list-units
 UNIT				MACHINE				ACTIVE	SUB
-kube-apiserver.service		f5b2d85b.../185.19.28.211	active	running
-kube-controller-manager.service	f5b2d85b.../185.19.28.211	active	running
-kube-kubelet.service		36737e5b.../185.19.28.224	active	running
-kube-kubelet.service		40a99d3b.../185.19.28.229	active	running
-kube-kubelet.service		426d23b5.../185.19.28.244	active	running
-kube-kubelet.service		5e2e8087.../185.19.28.230	active	running
-kube-kubelet.service		f5b2d85b.../185.19.28.211	active	running
-kube-proxy.service		36737e5b.../185.19.28.224	active	running
-kube-proxy.service		40a99d3b.../185.19.28.229	active	running
-kube-proxy.service		426d23b5.../185.19.28.244	active	running
-kube-proxy.service		5e2e8087.../185.19.28.230	active	running
-kube-proxy.service		f5b2d85b.../185.19.28.211	active	running
-kube-register.service		f5b2d85b.../185.19.28.211	active	running
-kube-scheduler.service		f5b2d85b.../185.19.28.211	active	running
+kube-apiserver.service		59d0740a.../185.19.29.94	active	running
+kube-controller-manager.service	59d0740a.../185.19.29.94	active	running
+kube-kubelet.service		072512c3.../185.19.29.64	active	running
+kube-kubelet.service		0f645055.../185.19.29.95	active	running
+kube-kubelet.service		59d0740a.../185.19.29.94	active	running
+kube-kubelet.service		ab856ccb.../185.19.29.51	active	running
+kube-kubelet.service		f13220c3.../185.19.29.9		active	running
+kube-proxy.service		072512c3.../185.19.29.64	active	running
+kube-proxy.service		0f645055.../185.19.29.95	active	running
+kube-proxy.service		59d0740a.../185.19.29.94	active	running
+kube-proxy.service		ab856ccb.../185.19.29.51	active	running
+kube-proxy.service		f13220c3.../185.19.29.9		active	running
+kube-register.service		59d0740a.../185.19.29.94	active	running
+kube-scheduler.service		59d0740a.../185.19.29.94	active	running
 ```
 
 Grab the IP address of the kubernetes api server and set it as the KUBERNETES_MASTER environment variable:
@@ -251,13 +251,15 @@ Start a replicated Nginx pod:
 $  ./kubecfg -p 8088:80 run dockerfile/nginx 3 myNginx
 ```
 
-If all goes well you will get running pods, currently there is an issue with the minion overlay which prevents the pods from communicating.
+This will start three containers running Nginx, with port 80 forwarded to port 8088 of the host. Be careful not to forward to 8080 as the KUBERNETES_MASTER is running on one of the host on port 8080 and this may cause conflicts (probably an aera of improvement in this setup).
 
 ```
 ./kubecfg list /pods
 ID                                     Image(s)            Host                Labels                          Status
 ----------                             ----------          ----------          ----------                      ----------
-293b0ce6-441e-11e4-a48d-061fc40000c9   dockerfile/nginx    185.19.28.211/      replicationController=myNginx   Waiting
-293b4ea5-441e-11e4-a48d-061fc40000c9   dockerfile/nginx    185.19.28.230/      replicationController=myNginx   Waiting
-293b5e30-441e-11e4-a48d-061fc40000c9   dockerfile/nginx    185.19.28.229/      replicationController=myNginx   Waiting
+43e78486-44a5-11e4-9079-060b8200019b   dockerfile/nginx    185.19.29.9/        replicationController=myNginx   Running
+43e7f6af-44a5-11e4-9079-060b8200019b   dockerfile/nginx    185.19.29.95/       replicationController=myNginx   Running
+43e805f4-44a5-11e4-9079-060b8200019b   dockerfile/nginx    185.19.29.94/       replicationController=myNginx   Running
 ```
+
+Take your browser and open `http://185.19.29.9:8088` or the IP that you got and enjoy Nginx:
