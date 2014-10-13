@@ -28,6 +28,6 @@ userdata = "\n".join(open('./nodes/etcd.yml').readlines())
 
 # Replace the name of the key with what you created and make sure you created an etcd security group
 name = 'etcd'
-for i in range(3):
+for i in range(5):
     name = name + '-' + str(i)
     conn.create_node(image=image,size=size,ex_keyname='exoscale',ex_security_groups=['etcd'],ex_display_name=name, ex_userdata=userdata)
