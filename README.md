@@ -1,5 +1,7 @@
 # kubernetes-exoscale
 
+*This is now obsolete, you should check this ansible [recipe](https://github.com/runseb/ansible-kubernetes) instead.*
+
 A tutorial to run Kubernetes on [CloudStack](http://cloudstack.apache.org) using [exoscale](http://www.exoscale.ch) as a Cloud provider. It is based on Kelsey Hightower [tutorial](https://github.com/kelseyhightower/kubernetes-fleet-tutorial). This tutorial walks you through creating an [etcd](https://github.com/coreos/etcd) cluster and a [kubernetes](https://github.com/GoogleCloudPlatform/kubernetes) cluster. Both clusters run within their own security group.
 
 # Introduction
